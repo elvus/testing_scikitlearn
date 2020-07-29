@@ -3,6 +3,9 @@ from io import StringIO
 import matplotlib.pyplot as plt
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.feature_selection import chi2
+from sklearn.model_selection import train_test_split
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.naive_bayes import MultinomialNB
 import numpy as np
 
 df=pd.read_csv('Consumer_Complaints.csv')
@@ -32,3 +35,12 @@ for Product, category_id in sorted(category_to_id.items()):
     print("# '{}':".format(Product))
     print(" . Most correlated unigrams:\n. {}".format('\n.'.join(unigrams[-N:])))
     print(" . Most correlated bigrams:\n. {}".format('\n.'.join(bigrams[-N:])))
+
+X_train, X_test, y_train, y_test = train_test_split(df['Consumer_complaint_narrative'], df['Product'], random_state=0)
+count_vect = CountVectorizer()
+X_train_counts = count_vect.fit_transform(X_train)
+tfidf_transformer = TfidTransformer()
+X_train_tfidf = tfidf_transformer.fit_transform(X_train_counts)
+clf = MultinomialNB().fit(X_train_tfidf, y_train)
+
+print(clf.predict(count_vect.transform(["This company refuses to provide me verification and validation of debt per my right under the FDCPA. I do not believe this debt is mine."])))
